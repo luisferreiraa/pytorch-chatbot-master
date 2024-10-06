@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot do Luís</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #4F46E5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Esconde o chatbox até que a primeira pergunta seja enviada */
+        #chat-box {
+            display: none;
+        }
+
+        /* Ajustes para o layout */
+        .chat-container {
+            max-height: 80vh; /* Para permitir espaço para o input */
+            overflow-y: auto; /* Rolagem quando necessário */
+        }
+
+        .input-area {
+            position: relative;
+        }
+
+        /* Estilos para o ícone de envio */
+        .send-icon {
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col justify-center items-center h-screen">
+
+<!-- Chatbox escondido inicialmente -->
+<div id="chat-box" class="chat-container bg-white shadow-lg rounded-lg p-6 w-full max-w-lg mb-4"></div>
+
+<!-- A barra de input deve aparecer ao centro vertical e horizontal -->
+<div class="input-area mb-4 w-full max-w-lg">
+    <input id="user-input" type="text" placeholder="Pergunta-me algo..."
+           class="w-full py-4 px-6 bg-gray-200 rounded-full text-lg outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 ease-in-out">
+    <div id="spinner" class="spinner hidden absolute top-4 right-16"></div>
+
+    <!-- Ícone de envio -->
+    <svg class="h-6 w-6 text-indigo-500 absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
+         xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+        <path d="M21 3L14.5 21a.55 .55 0 0 1 -1 0L10 14L3 10.5a.55 .55 0 0 1 0 -1L21 3"/>
+    </svg>
+
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const spinner = document.getElementById('spinner');
+    const sendIcon = document.getElementById('send-icon');
+
+    // Função para mostrar o chatbox após a primeira pergunta
+    function showChatBox() {
+        chatBox.style.display = 'block';
+    }
+
+    // Função para mostrar a resposta do bot letra por letra (efeito de digitação)
+    function typeWriter(element, text, speed = 50) {
+        let i = 0;
+
+        function type() {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+
+        type();
+    }
+
+    // Função para simular a resposta do bot
+    // function simulateBotResponse(responseText) {
+    //     const botMessage = document.createElement('div');
+    //     botMessage.classList.add('text-gray-600', 'p-2', 'mb-2', 'bg-indigo-100', 'rounded-lg');
+    //
+    //     chatBox.appendChild(botMessage);
+    //     chatBox.scrollTop = chatBox.scrollHeight;
+    //
+    //     // Aplica o efeito de digitação na resposta
+    //     typeWriter(botMessage, responseText);
+    // }
+
+    function simulateBotResponse(responseText) {
+        const botMessage = document.createElement('div');
+        botMessage.classList.add('text-gray-600', 'p-2', 'mb-2', 'bg-indigo-100', 'rounded-lg');
+
+        // Verifica se a resposta contém o texto "Download"
+        if (responseText.includes("Download")) {
+            // Se contiver, usa innerHTML para renderizar o HTML corretamente
+            botMessage.innerHTML = responseText;
+        } else {
+            // Se não contiver, usa typeWriter para mostrar a resposta letra por letra
+            chatBox.appendChild(botMessage);
+            typeWriter(botMessage, responseText); // Aplica o efeito de digitação
+            return; // Saia da função aqui para evitar a adição dupla
+        }
+
+        chatBox.appendChild(botMessage);
+        chatBox.scrollTop = chatBox.scrollHeight; // Scroll para baixo
+    }
+
+
+    // Função para enviar a pergunta ao backend
+    function sendQuestion(question) {
+        spinner.classList.remove('hidden');
+
+        fetch('/ask', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({question: question})
+        })
+            .then(response => response.json())
+            .then(data => {
+                spinner.classList.add('hidden');
+                simulateBotResponse(data.answer);  // Mostra a resposta com o efeito de digitação
+            })
+            .catch(error => {
+                spinner.classList.add('hidden');
+                simulateBotResponse("Erro ao obter resposta do servidor.");
+            });
+    }
+
+    // Função para processar o envio da pergunta
+    function processSend() {
+        if (userInput.value.trim() !== "") {
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('text-right', 'text-gray-800', 'p-2', 'mb-2', 'bg-indigo-500', 'text-white', 'rounded-lg');
+            userMessage.innerText = userInput.value;
+            chatBox.appendChild(userMessage);
+
+            sendQuestion(userInput.value);  // Envia a pergunta ao servidor Flask
+            userInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Exibe o chatbox após a primeira pergunta ser enviada
+            showChatBox();
+        }
+    }
+
+    // Captura o evento de pressionar a tecla Enter
+    userInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            processSend();
+        }
+    });
+
+    // Captura o clique no ícone de envio
+    sendIcon.addEventListener('click', function () {
+        processSend();
+    });
+</script>
+</body>
+</html>
+
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="pt">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Chatbot</title>-->
+<!--    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">-->
+<!--</head>-->
+<!--<body class="bg-gray-100 flex items-center justify-center h-screen">-->
+
+<!--    <div class="bg-white shadow-lg rounded-lg w-full max-w-md">-->
+<!--        <div class="p-6 border-b">-->
+<!--            <h1 class="text-xl font-semibold text-center">Chatbot com Flask</h1>-->
+<!--        </div>-->
+<!--        <div id="chatbox" class="p-4 h-96 overflow-y-auto">-->
+<!--            <div id="messages"></div>-->
+<!--        </div>-->
+<!--        <div id="input-container" class="flex p-4 border-t">-->
+<!--            <input type="text" id="user-input" placeholder="Digite sua pergunta aqui..."-->
+<!--                   class="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">-->
+<!--            <button id="send-button" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">-->
+<!--                Enviar-->
+<!--            </button>-->
+<!--        </div>-->
+<!--    </div>-->
+
+<!--    <script>-->
+<!--        document.getElementById("send-button").onclick = function() {-->
+<!--            const userInput = document.getElementById("user-input").value;-->
+<!--            if (userInput) {-->
+<!--                addMessage(userInput, 'user-message');-->
+<!--                fetch('/ask', {-->
+<!--                    method: 'POST',-->
+<!--                    headers: {-->
+<!--                        'Content-Type': 'application/json',-->
+<!--                    },-->
+<!--                    body: JSON.stringify({ question: userInput })-->
+<!--                })-->
+<!--                .then(response => response.json())-->
+<!--                .then(data => {-->
+<!--                    addMessage(data.answer, 'bot-message');-->
+<!--                    document.getElementById("user-input").value = '';-->
+<!--                })-->
+<!--                .catch((error) => {-->
+<!--                    console.error('Error:', error);-->
+<!--                });-->
+<!--            }-->
+<!--        };-->
+
+<!--        function addMessage(message, className) {-->
+<!--            const messagesDiv = document.getElementById("messages");-->
+<!--            const messageDiv = document.createElement("div");-->
+<!--            messageDiv.className = `p-2 rounded mb-2 ${className}`;-->
+<!--            messageDiv.innerText = message;-->
+<!--            if (className === 'user-message') {-->
+<!--                messageDiv.classList.add('bg-green-100', 'self-end');-->
+<!--            } else {-->
+<!--                messageDiv.classList.add('bg-red-100');-->
+<!--            }-->
+<!--            messagesDiv.appendChild(messageDiv);-->
+<!--            document.getElementById("chatbox").scrollTop = chatbox.scrollHeight;-->
+<!--        }-->
+
+<!--        document.getElementById("user-input").addEventListener("keypress", function(event) {-->
+<!--            if (event.key === "Enter") {-->
+<!--                document.getElementById("send-button").click();-->
+<!--            }-->
+<!--        });-->
+<!--    </script>-->
+
+<!--</body>-->
+<!--</html>-->
