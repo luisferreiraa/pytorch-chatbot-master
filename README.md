@@ -19,6 +19,17 @@ This project is a simple AI-powered chatbot built using Flask (for the web inter
 
 ## Project Structure
 
+```console
+├── model.py               # Defines the structure of the neural network.
+├── nltk_utils.py          # Utility functions for processing text (tokenization, bag of words, etc.).
+├── data.pth               # Pre-trained model data file.
+├── intents.json           # List of intents, patterns, and responses used to train the model.
+├── app.py                 # Flask application that handles the chatbot logic and endpoints.
+├── static/                # Contains static files such as the CV file.
+│   └── cv_luis.pdf        # The CV to be downloaded by the user.
+└── templates/
+    └── home.html          # Main HTML file for rendering the web interface.
+```
 
 
 ## Watch the Tutorial
