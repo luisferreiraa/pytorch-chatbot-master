@@ -31,78 +31,71 @@ This project is a simple AI-powered chatbot built using Flask (for the web inter
     └── home.html          # Main HTML file for rendering the web interface.
 ```
 
+## Setup Instructions
 
-## Watch the Tutorial
-[![Alt text](https://img.youtube.com/vi/RpWeNzfSUHw/hqdefault.jpg)](https://www.youtube.com/watch?v=RpWeNzfSUHw&list=PLqnslRFeH2UrFW4AUgn-eY37qOAWQpJyg)
+### Prerequisites
 
-## Installation
+- Python 3.x
+- PyTorch
+- Flask
+- NLTK
 
-### Create an environment
-Whatever you prefer (e.g. `conda` or `venv`)
+### Installation
+
+1. Clone the repository:
+
 ```console
-mkdir myproject
-$ cd myproject
-$ python3 -m venv venv
+git clone https://github.com/luisferreiraa/pytorch-cv-chatbot.git
+cd pytorch-cv-chatbot
 ```
 
-### Activate it
-Mac / Linux:
+2. Set up a virtual environment (optional but recommended):
+
 ```console
-. venv/bin/activate
+python -m venv venv
+source venv/bin/activate # On Windows use: venv\Scripts\activate
 ```
-Windows:
+
+3. Install dependencies:
+
 ```console
-venv\Scripts\activate
+pip install -r requirements.txt
 ```
-### Install PyTorch and dependencies
 
-For Installation of PyTorch see [official website](https://pytorch.org/).
+4. Download NLTK resources: Inside a Python shell, run the following commands to download required resources:
 
-You also need `nltk`:
- ```console
-pip install nltk
- ```
-
-If you get an error during the first run, you also need to install `nltk.tokenize.punkt`:
-Run this once in your terminal:
- ```console
-$ python
->>> import nltk
->>> nltk.download('punkt')
+```console
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
 ```
+
+5. Run the Flask application:
+
+```console
+python app.py
+```
+
+The application should be running on http://localhost:5000.
+
+## How it Works
+
+1. Natural Language Processing: The user's input is tokenized and converted into a "bag of words" representation using the nltk_utils.py module. The pre-trained model processes this input and predicts which intent (or category) the user's query belongs to.
+2. Neural Network: The chatbot uses a simple feed-forward neural network (NeuralNet class in model.py). This model was trained using supervised learning on the data found in intents.json. The model classifies the input into one of the predefined categories (or tags) and responds accordingly.
+3. Handling Responses: After determining the intent, the application selects a random response from the list associated with that intent in the intents.json file.
+4. CV Download: The application has an endpoint (/cv) that allows the user to download a CV in PDF format when requested via a specific query (e.g., "Send me your CV").
 
 ## Usage
-Run
-```console
-python train.py
-```
-This will dump `data.pth` file. And then run
-```console
-python chat.py
-```
-## Customize
-Have a look at [intents.json](intents.json). You can customize it according to your own use case. Just define a new `tag`, possible `patterns`, and possible `responses` for the chat bot. You have to re-run the training whenever this file is modified.
-```console
-{
-  "intents": [
-    {
-      "tag": "greeting",
-      "patterns": [
-        "Hi",
-        "Hey",
-        "How are you",
-        "Is anyone there?",
-        "Hello",
-        "Good day"
-      ],
-      "responses": [
-        "Hey :-)",
-        "Hello, thanks for visiting",
-        "Hi there, what can I do for you?",
-        "Hi there, how can I help?"
-      ]
-    },
-    ...
-  ]
-}
-```
+
+1. Web Interface: Open http://localhost:5000 in your browser. You can interact with the chatbot by typing a question or command. It will respond based on its training data.
+2. Example Queries:
+
+- "Send me your CV"
+- "What can you do?"
+- "Tell me a joke"
+
+3. Adding new intents: This chatbot was trained to act as my CV personal assistant. It knows everything about my studies, experience and focus. It answers in pt-PT. You can extend the chatbot by editing the intens.json file. Add new patterns, responses, and tags to teach the bot new capabilities. After adding, make sure to retrain your model.
+
+## License
+
+This project is open-source and available under the MIT License.
