@@ -1,11 +1,25 @@
-# Implementation of a Contextual Chatbot in PyTorch.  
-Simple chatbot implementation with PyTorch. 
+# AI Chatbot with Flask and PyTorch  
+This project is a simple AI-powered chatbot built using Flask (for the web interface) and PyTorch (for training and running the deep learning model). The chatbot processes natural language queries and returns appropriate responses based on the trained model. It's designed to handle various intents and can be expanded to include more functionality and intens over time.
 
-- The implementation should be easy to follow for beginners and provide a basic understanding of chatbots.
-- The implementation is straightforward with a Feed Forward Neural net with 2 hidden layers.
-- Customization for your own use case is super easy. Just modify `intents.json` with possible patterns and responses and re-run the training (see below for more info).
+## Table of Contents
 
-The approach is inspired by this article and ported to PyTorch: [https://chatbotsmagazine.com/contextual-chat-bots-with-tensorflow-4391749d0077](https://chatbotsmagazine.com/contextual-chat-bots-with-tensorflow-4391749d0077).
+- Technologies Used
+- Project Structure
+- Setup Instructions
+- How it Works
+- Usage
+- License
+
+## Technologies Used
+
+- Flask: A lightweight WSGI web application framework in Python.
+- Pytorch: An open-source deep learning framework for building and training the neural network.
+- NLTK (Natural Language Toolkit): A suite of libraries for building and training the neural network.
+- HTML/CSS/JavaScript: Used for rendering the web interface for user interaction.
+
+## Project Structure
+
+
 
 ## Watch the Tutorial
 [![Alt text](https://img.youtube.com/vi/RpWeNzfSUHw/hqdefault.jpg)](https://www.youtube.com/watch?v=RpWeNzfSUHw&list=PLqnslRFeH2UrFW4AUgn-eY37qOAWQpJyg)
